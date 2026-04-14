@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Build outputs
+dist/
+build/
+*.js.map
+*.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# NestJS
+.env
+.env.local
+.env.*.local
+
+# Angular
+.angular/
+*.ngfactory.ts
+*.ngsummary.json
+
+# Testing
+coverage/
+.nyc_output
+
+# Prisma
+.env
+prisma/dev.db
+prisma/dev.db-journal
+
+# OS
+Thumbs.db
+.DS_Store
