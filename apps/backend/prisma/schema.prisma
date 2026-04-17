@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model - Clients who register to book appointments
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  contact   String   @unique // WhatsApp number or email
+  passwordHash String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@map("users")
+}
+
+// Service model - Available services (Corte, Barba, etc)
+model Service {
+  id    String @id @default(uuid())
+  name  String @unique // "Corte", "Barba", "Sobrancelha", etc
+  price Float
+
+  @@map("services")
+}
+
+// TimeSlot model - Available time slots for appointments
+model TimeSlot {
+  id        String   @id @default(uuid())
+  day       String   // Format: "10/03" (DD/MM)
+  hour      String   // Format: "14:00" (HH:MM)
+  available Boolean  @default(true)
+  blockedBy String? // Admin reason for blocking
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointment Appointment? // One-to-one relationship
+
+  @@unique([day, hour])
+  @@index([available])
+  @@index([day])
+  @@map("time_slots")
+}
+
+// Appointment model - User bookings
+model Appointment {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Client info
+  clientId      String
+  client        User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // TimeSlot info
+  timeSlotId    String   @unique
+  timeSlot      TimeSlot @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
+
+  // Appointment details
+  service       String   // Can be single or multiple: "Corte", "Corte + Barba", etc
+  status        Status   @default(AGENDADO)
+  paymentMethod PaymentMethod
+  notes         String?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("appointments")
+}
+
+// Status enum for appointments
+enum Status {
+  AGENDADO
+  CANCELADO
+  CONCLUIDO
+}
+
+// PaymentMethod enum
+enum PaymentMethod {
+  PIX
+  DINHEIRO
+  CARTAO
+}
